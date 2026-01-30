@@ -104,6 +104,14 @@
   .wrong {
     color: #ef4444;
   }
+
+  .element-img {
+    width: 36px;
+    height: 36px;
+    margin-bottom: 6px;
+    opacity: 0.9;
+}
+
 </style>
 </head>
 
@@ -181,14 +189,16 @@ function startRound() {
   roundElements = shuffle(ELEMENTS).slice(0, 10);
 
   roundElements.forEach(([sym, name]) => {
-    grid.innerHTML += `
-      <div class="card">
-        <div>
-          <div class="symbol">${sym}</div>
-          <div class="name">${name}</div>
-        </div>
-      </div>`;
-  });
+  grid.innerHTML += `
+    <div class="card">
+      <div>
+        <img src="images/${sym}.svg" class="element-img" alt="${name}">
+        <div class="symbol">${sym}</div>
+        <div class="name">${name}</div>
+      </div>
+    </div>`;
+});
+
 
   let timeLeft = 10;
   timer.textContent = `Memorize (${timeLeft}s)`;
