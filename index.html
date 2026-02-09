@@ -178,6 +178,7 @@ const ELEMENTS = [
 
 let roundElements = [];
 let currentMode = "elements";
+let shuffledWordPool = [];
 
 const WORDS = [
   "ocean", "thunder", "lantern", "pencil", "planet", "window", "forest", "bridge",
@@ -199,6 +200,14 @@ function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5);
 }
 
+function getNextWordRound() {
+  if (shuffledWordPool.length < 10) {
+    shuffledWordPool = shuffle(WORDS);
+  }
+
+  return shuffledWordPool.splice(0, 10).map(word => [word, word]);
+}
+
 function startRound() {
   grid.innerHTML = "";
   result.innerHTML = "";
@@ -208,7 +217,7 @@ function startRound() {
 
   roundElements = currentMode === "elements"
     ? shuffle(ELEMENTS).slice(0, 10)
-    : shuffle(WORDS).slice(0, 10).map(word => [word, word]);
+    : getNextWordRound();
 
   roundElements.forEach(([sym, name]) => {
     if (currentMode === "elements") {
