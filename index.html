@@ -17,6 +17,14 @@
     min-height: 100vh;
   }
 
+  .mode-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    margin-top: 0;
+    z-index: 20;
+  }
+
   .container {
     max-width: 720px;
     width: 100%;
@@ -116,8 +124,9 @@
 </head>
 
 <body>
+<button class="mode-toggle" id="modeToggleBtn" onclick="toggleMode()">Switch to Word Memory</button>
 <div class="container">
-  <h1>Periodic Table Recall</h1>
+  <h1 id="title">Periodic Table Recall</h1>
   <div class="timer" id="timer">Memorize the elements...</div>
 
   <div class="grid" id="grid"></div>
@@ -168,12 +177,23 @@ const ELEMENTS = [
 ];
 
 let roundElements = [];
+let currentMode = "elements";
+
+const WORDS = [
+  "ocean", "thunder", "lantern", "pencil", "planet", "window", "forest", "bridge",
+  "castle", "garden", "engine", "orange", "button", "pillow", "camera", "rocket",
+  "candle", "silver", "glacier", "island", "marble", "pocket", "blanket", "violet",
+  "copper", "dolphin", "tunnel", "harbor", "meadow", "desert", "temple", "stream",
+  "helmet", "ticket", "parrot", "guitar", "jungle", "circle", "fountain", "village"
+];
 
 const grid = document.getElementById("grid");
 const timer = document.getElementById("timer");
 const answers = document.getElementById("answers");
 const submitBtn = document.getElementById("submitBtn");
 const result = document.getElementById("result");
+const title = document.getElementById("title");
+const modeToggleBtn = document.getElementById("modeToggleBtn");
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5);
@@ -186,18 +206,28 @@ function startRound() {
   answers.disabled = true;
   submitBtn.disabled = true;
 
-  roundElements = shuffle(ELEMENTS).slice(0, 10);
+  roundElements = currentMode === "elements"
+    ? shuffle(ELEMENTS).slice(0, 10)
+    : shuffle(WORDS).slice(0, 10).map(word => [word, word]);
 
   roundElements.forEach(([sym, name]) => {
-  grid.innerHTML += `
-    <div class="card">
-      <div>
-        <img src="images/${sym}.svg" class="element-img" alt="${name}">
-        <div class="symbol">${sym}</div>
-        <div class="name">${name}</div>
-      </div>
-    </div>`;
-});
+    if (currentMode === "elements") {
+      grid.innerHTML += `
+      <div class="card">
+        <div>
+          <img src="Images/${sym}.svg" class="element-img" alt="${name}">
+          <div class="symbol">${sym}</div>
+          <div class="name">${name}</div>
+        </div>
+      </div>`;
+      return;
+    }
+
+    grid.innerHTML += `
+      <div class="card">
+        <div class="symbol" style="font-size:18px">${name}</div>
+      </div>`;
+  });
 
 
   let timeLeft = 10;
@@ -225,6 +255,18 @@ function flipCards() {
   submitBtn.disabled = false;
 }
 
+function toggleMode() {
+  currentMode = currentMode === "elements" ? "words" : "elements";
+  title.textContent = currentMode === "elements" ? "Periodic Table Recall" : "Word Memory Recall";
+  answers.placeholder = currentMode === "elements"
+    ? "Type element names here, separated by commas"
+    : "Type words you remember here, separated by commas";
+  modeToggleBtn.textContent = currentMode === "elements"
+    ? "Switch to Word Memory"
+    : "Switch to Element Memory";
+  startRound();
+}
+
 function submitAnswers() {
   const userAnswers = answers.value
     .toLowerCase()
@@ -243,7 +285,7 @@ function submitAnswers() {
     <div class="correct">Correct: ${correct} / 10</div>
     <div class="wrong">Missed: ${10 - correct}</div>
     <div style="margin-top:8px;color:#9ca3af">
-      Elements were: ${roundElements.map(e => e[1]).join(", ")}
+      ${currentMode === "elements" ? "Elements" : "Words"} were: ${roundElements.map(e => e[1]).join(", ")}
     </div>
   `;
 }
